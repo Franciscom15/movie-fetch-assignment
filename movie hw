@@ -1,0 +1,41 @@
+const apiKey = 72d33c52;
+const moviesContainer = document.querySelector("#movies-container");
+const searchInput = document.querySelector("#search");
+const searchButton = document.querySelector("#search-btn");
+
+searchButton.addEventListener("click", searchMovies);
+
+async function searchMovies() {
+  const searchTerm = searchInput.value.trim();
+  if (searchTerm === "") {
+    return;
+  }
+
+  const url = `https://www.omdbapi.com/?s=${searchTerm}&apikey=${apiKey}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.Response === "False") {
+      moviesContainer.innerHTML = `<p>No results found for "${searchTerm}"</p>`;
+    } else {
+      const movies = data.Search;
+      moviesContainer.innerHTML = "";
+      movies.forEach((movie) => {
+        const movieDetails = `
+          <div class="card">
+            <img src="${movie.Poster}" alt="${movie.Title}">
+            <h2>${movie.Title}</h2>
+            <p>Released: ${movie.Year}</p>
+          </div>
+        `;
+        moviesContainer.insertAdjacentHTML("beforeend", movieDetails);
+      });
+    }
+  } catch (error) {
+    moviesContainer.innerHTML = `<p>Something went wrong. Please try again later.</p>`;
+    console.error(error);
+  }
+}
+
